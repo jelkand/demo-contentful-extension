@@ -8,19 +8,19 @@
       "instance": [
         {
           "id": "typesRequiring",
-          "type": ["Symbol"],
+          "type": "Symbol",
           "name": "Types Requiring",
           "description": "The subtypes that require this field."
         },
         {
           "id": "typesAllowing",
-          "type": ["Symbol"],
+          "type": "Symbol",
           "name": "Types Allowing",
           "description": "The subtypes that allow this field as optional."
         },
         {
           "id": "typesForbidding",
-          "type": ["Symbol"],
+          "type": "Symbol",
           "name": "Types Forbidding",
           "description": "The subtypes that do not accept this field."
         }
