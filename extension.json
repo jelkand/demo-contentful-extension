@@ -1,7 +1,7 @@
 {
   "extension": {
     "name": "TEST RUN",
-    "fieldTypes": [{type:"Symbol"}],
+    "fieldTypes": {type:"Symbol"},
     "srcdoc": "./index.html",
     "parameters": {
       "installation": [],
