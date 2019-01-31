@@ -1,4 +1,5 @@
 {
+  "id": "jelkand-demo-extension",
   "name": "TEST RUN",
   "fieldTypes": ["Symbol"],
   "srcdoc": "./index.html",
