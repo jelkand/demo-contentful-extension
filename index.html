@@ -1,13 +1,14 @@
 <!DOCTYPE html>
+<html>
 <head>
   <link href="https://static.contentful.com/app/main-62e0abc7.css" media="all" rel="stylesheet" type="text/css">
   <link href="https://static.contentful.com/app/vendor-976872d7.css" media="all" rel="stylesheet" type="text/css">
   <link href="https://contentful.github.io/ui-extensions-sdk/cf-extension.css" media="all" rel="stylesheet" type="text/css">
   <script type="text/javascript" src="https://unpkg.com/contentful-ui-extensions-sdk@3"></script>
 </head>
-
-<div class="cf-form-field">
-  <input type="text" class="cf-form-input draft-text">
+<body>
+<div class="cf-form-field" id="wrapper">
+  <input type="text" class="cf-form-input draft-text" id="text-input">
   <div class="cf-form-hint">
     <span class="diff-text"></span>
   </div>
@@ -20,90 +21,63 @@
 <script>
 var cfExt = window.contentfulExtension || window.contentfulWidget
 cfExt.init(function (api) {
-  var typesRequiring = extension.parameters.instance.typesRequiring
-  var typesAllowing = extension.parameters.instance.typesAllowing
-  var typesForbidding = extension.parameters.instance.typesForbidding
-  
+  console.log('init extension');
+  console.log('params', api.parameters.instance);
+  var typesRequiring = api.parameters.instance.typesRequiring.split(',')
+  var typesAllowing = api.parameters.instance.typesAllowing.split(',')
+  var typesForbidding = api.parameters.instance.typesForbidding.split(',')
+  var typeFieldId = api.parameters.instance.typeFieldId
+  var typeField = api.entry.fields[typeFieldId]
+  console.log('typefield', typeField);
+  var type = typeField.getValue();
+  console.log('type', type);
 
-  var slugField = api.field
-  var titleFieldName = api.contentType.displayField
-  var titleField = api.entry.fields[titleFieldName]
+  var thisField = api.field
   var _ = window._
-  var getSlug = window.getSlug
-  var debouncedUpdateStatus = _.debounce(updateStatus, 500)
-  var input = document.getElementById('slug')
-  var statusElements = {
-    error: document.getElementById('error'),
-    ok: document.getElementById('ok'),
-    loading: document.getElementById('loading')
+  
+  var input = document.getElementById('text-input')
+
+  var wrapper = document.getElementById('wrapper')
+
+  if (typesForbidding.includes(type)) {
+    console.log('disable!');
+    input.disabled = true;
   }
+  typeField.onValueChanged(enableDisable)
   api.window.updateHeight()
-  titleField.onValueChanged(handleSlugChange)
+
   input.addEventListener('input', function () {
-    handleSlugChange(input.value)
+    setInput(input.value || '')
   })
   input.addEventListener('change', function () {
-    handleSlugChange(input.value)
+    setInput(input.value || '')
   })
-  updateStatus(slugField.getValue())
-  /**
-   * Handle change of slug value caused by either changing slug field
-   * or changing the title of the entry
-   */
-  function handleSlugChange (value) {
-    setSlug(getSlug(value || ''))
-  }
+  
+  // updateStatus(thisField.getValue())
+
   /**
    * Set the input value to 'slug' and update the status by checking for
    * duplicates.
    */
-  function setSlug (slug) {
-    input.value = slug
-    slugField.setValue(slug)
-    setStatus('loading')
-    debouncedUpdateStatus(slug)
+  function setInput (inputValue) {
+    input.value = inputValue
+    thisField.setValue(inputValue)
   }
   /**
-   * Show inline status icon based on current status
+   * Enables or disables input based on type changes
    */
-  function updateStatus (slug) {
-    getDuplicates(slug).then(function (hasDuplicates) {
-      if (hasDuplicates) {
-        setStatus('error')
-      } else {
-        setStatus('ok')
-      }
-    })
-  }
-  /**
-   * Show icon for given status
-   */
-  function setStatus (status) {
-    _.each(statusElements, function (el, name) {
-      if (name === status) {
-        el.style.display = 'inline'
-      } else {
-        el.style.display = 'none'
-      }
-    })
-  }
-  /**
-   * Check if slug is already in use.
-   * Resolves to 'true' if there are entries of the given content type that have
-   * the same 'slug' value.
-   */
-  function getDuplicates (slug) {
-    if (!slug) {
-      return Promise.resolve(false)
+  function enableDisable (newType) {
+    console.log('newType', newType);
+    if (typesForbidding.includes(newType)) {
+      console.log('disable!');
+      wrapper.style.display = 'none';
+      // input.disabled = true;
+    } else {
+      wrapper.style.display = 'initial';
+      // input.disabled = false;
     }
-    var query = {}
-    query['content_type'] = api.entry.getSys().contentType.sys.id
-    query['fields.' + slugField.id] = slug
-    query['sys.id[ne]'] = api.entry.getSys().id
-    query['sys.publishedAt[exists]'] = true
-    return api.space.getEntries(query).then(function (result) {
-      return result.total > 0
-    })
   }
 })
 </script>
+</body>
+</html>

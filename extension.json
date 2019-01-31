@@ -23,6 +23,12 @@
         "type": "Symbol",
         "name": "Types Forbidding",
         "description": "The subtypes that do not accept this field."
+      },
+      {
+        "id": "typeFieldId",
+        "type": "Symbol",
+        "name": "Type Field ID",
+        "description": "The ID for the type field."
       }
     ]
   }
